@@ -1,0 +1,25 @@
+{
+  "name": "labor-crawler",
+  "version": "0.0.1",
+  "description": "a radical web crawler",
+  "main": "app.js",
+  "dependencies": {
+    "blessed": "^0.1.81",
+    "bunyan": "^1.5.1",
+    "cheerio": "^0.20.0",
+    "fs": "0.0.2",
+    "node-fetch": "^1.3.3",
+    "request": "^2.69.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://blerchin@bitbucket.org/blerchin/labor-crawler.git"
+  },
+  "author": "Ben Lerchin",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/blerchin/labor-crawler#readme"
+}
