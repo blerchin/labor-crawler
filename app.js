@@ -1,42 +1,69 @@
 var request = require('request');
 var cheerio = require('cheerio');
 var bunyan = require('bunyan');
+var phantom = require('phantom');
 var fs = require('fs');
 var events = require('events');
-var eventEmitter = new events.EventEmitter();
 
-var log = bunyan.createLogger({name: "labor-crawler"});
+var Printer = require('./printer');
+
+var log = bunyan.createLogger({
+	name: "labor-crawler",
+	streams: [
+		{
+			level: 'info',
+			path: './log/info.log'
+		}
+	]
+});
 
 var config = require('./config');
 
 var to_visit = [];
+var to_print = [];
 var visited = [];
+var relevant = [];
 to_visit.push(config.start_page)
 var keywords = config.keywords;
 var blacklist = config.blacklist;
 var active_requests = 0;
 
+var printer = new Printer(to_print);
 
 function get(){
 	log.info({running: "get"});
+	to_visit.sort(function(a,b){ 
+		if(!a.words || !b.words ){
+			return 0;
+		}
+		if(a.words.length > b.words.length){
+			return 1;
+		} else if (a.words.length < b.words.length){
+			return -1;
+		} else {
+			return 0;
+		}
+	});
 	while( to_visit.length > 0 && active_requests < config.max_requests ){
 		parse(to_visit[0], function(){
 			log.info({request: "done"});
 			active_requests--;
-			eventEmitter.emit('parseDone');
 		});
 		active_requests++;
-		to_visit = to_visit.slice(1);
+		to_visit.splice(0, 1);
 	}
 	writeVisits();
 }
-eventEmitter.on('parseDone', get);
+setInterval(get, 1000);
 get();
 
 
 function parse(url, done){
 	log.info({loading: url});
-	request(url, function(err, res, body){
+	request({
+		url:url,
+		maxRedirects: 2
+	}, function(err, res, body){
 		log.info({data: "got some"});
 		if(err){
 			log.warn(err);
@@ -86,6 +113,11 @@ function recordVisit(url, $, words, links){
 	};
 	//log.info({visited: record});
 	visited.push(record);
+	//is error if only one argument
+	if(arguments.length > 2 && words.length > 0){
+		relevant.push(record);
+		to_print.push(record);
+	}
 }
 
 function planVisit(el){
@@ -113,7 +145,9 @@ function planVisit(el){
 	}
 }
 
+
 function writeVisits(){
 	fs.writeFile("visitLog.txt", visited.map(function(v){ return v.url + '\n'} ));
 	fs.writeFile("toVisit.txt", to_visit);
+	fs.writeFile("relevant.txt", relevant.map(function(r){ return r.url +':' + JSON.stringify(r.words) + '\n' }));
 }
