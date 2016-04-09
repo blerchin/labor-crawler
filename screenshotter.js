@@ -33,9 +33,10 @@ Screenshotter.prototype.tick = function(){
 					return Promise.resolve();
 				}
 				return self.screenshot(page.url)
-					.then(function(){
+					.then(function(key){
 						console.log("captured " + page.url );
 						page.captured = true;
+						page.capturedPDFKey = key;
 						return page.save();
 					})
 					.catch(function(err){
@@ -67,7 +68,7 @@ Screenshotter.prototype.screenshot = function(url){
 			if(err){
 				reject(err);
 			} else {
-				resolve();
+				resolve(params.Key);
 			}
 		})
 	});

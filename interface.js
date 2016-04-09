@@ -6,6 +6,9 @@ var Interface = function(){
 Interface.prototype.getPageToPrint = function(){
 	return models.Page.findOne({
 		printed: false,
+		capturedPDFKey: {
+			$exists: true
+		},
 		wordsC: {
 			$gt: 0
 		}

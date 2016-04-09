@@ -13,6 +13,7 @@ var Page = mongoose.model('Page', new mongoose.Schema({
 		type:	Boolean,
 		'default': false
 	},
+	capturedPDFKey: String,
 	captured: {
 		type:	Boolean,
 		'default': false
