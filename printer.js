@@ -58,21 +58,19 @@ Printer.prototype.print = function(key){
 			Key: key
 		}, function(err, data){
 			if(err){
-				reject(err);
+				return reject(err);
 			}
 			var destPath = config.temp_storage_dir + "/" + Date.now() + ".pdf";
-			if(!data.Body){
-				reject("invalid data from S3")
-			}
 			fs.writeFile(destPath, data.Body, function(err){
 				if( err) {
-					reject(err)
+					console.log(err);
+					return reject(err)
 				} else {
 					//console.log('printing ' + key);
 					var job = self.printer.printFile(destPath);
 					job.once('sent', function(){
 						console.log('sent');
-						resolve('printed successfully');
+						return resolve('printed successfully');
 					});
 				}
 			});
