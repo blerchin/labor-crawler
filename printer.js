@@ -61,6 +61,9 @@ Printer.prototype.print = function(key){
 				reject(err);
 			}
 			var destPath = config.temp_storage_dir + "/" + Date.now() + ".pdf";
+			if(!data.Body){
+				reject("invalid data from S3")
+			}
 			fs.writeFile(destPath, data.Body, function(err){
 				if( err) {
 					reject(err)
