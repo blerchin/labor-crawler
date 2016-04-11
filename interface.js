@@ -43,7 +43,6 @@ Interface.prototype.getLinkToVisit = function(){
 	return models.Link.findOne({
 		visited: false
 	}).sort({
-		createdAt: 1,
 		wordsC: -1
 	});
 };

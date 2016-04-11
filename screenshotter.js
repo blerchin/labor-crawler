@@ -21,7 +21,6 @@ Screenshotter.prototype.run = function(){
 Screenshotter.prototype.tick = function(){
 	var self = this;
 	if( this.active_jobs < config.max_screenshot_jobs ){
-		console.log('starting a job');
 		this.inter.getPageToCapture()
 			.then(function(page){
 				if(page){
@@ -29,7 +28,6 @@ Screenshotter.prototype.tick = function(){
 					page.capturing = true;
 					return page.save();
 				} else {
-					console.log("didn't get a page");
 					return Promise.resolve();
 				}
 			})
@@ -50,7 +48,6 @@ Screenshotter.prototype.tick = function(){
 						return page.save();
 					});
 			}).then(function(){
-				console.log('finished a job');
 				self.active_jobs--;
 			}).catch(function(err){
 				console.log(err);
