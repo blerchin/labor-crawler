@@ -57,7 +57,9 @@ describe("database tests:", function(){
 		beforeEach(function(done){
 			var self = this;
 			this.i = new Interface();
-			this.i.addLink( "http://url.url").then(function(){
+			this.i.addLink({
+				href: "http://url.url"
+			}).then(function(){
 				return models.Link.find({}).then(function(links){
 					self.links = links;
 				})

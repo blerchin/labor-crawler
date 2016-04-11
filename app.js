@@ -45,7 +45,7 @@ function visitNext(){
 					return Promise.all([
 					recordPage(attr),
 					recordLinks(attr),
-					updateCurrentLinks
+					updateCurrentLinks()
 					]);
 				}).finally(function(){
 					return recordLinkVisited(link);
@@ -76,7 +76,7 @@ function recordPage(attr){
 
 function recordLinks(attr){
 	return Promise.map(attr.links, function(link){
-		return planVisit(link);
+		return planVisit(link, attr.words && attr.words.length);
 	});
 };
 
@@ -134,7 +134,7 @@ function findKeywords($, body){
 	return found_words;
 }
 
-function planVisit(href){
+function planVisit(href, wordsC){
 	var blocked = false;
 	blacklist.forEach(function(t){
 		if( href.match(t) ){
@@ -148,7 +148,10 @@ function planVisit(href){
 	});
 
 	if( !blocked ){
-		return inter.addLink(href);
+		return inter.addLink({
+			href: href,
+			wordsC: wordsC
+		});
 	} else {
 		log.info("blocked visit to '" + href + "'");
 		return Promise.resolve(null);
@@ -179,7 +182,10 @@ function start(){
 	return inter.getLinkToVisit()
 		.then(function(link){
 			if (!link){
-				return inter.addLink(config.start_page);
+				return inter.addLink({
+					href: config.start_page,
+					wordsC: 1
+				});
 			} else {
 				return Promise.resolve();
 			}

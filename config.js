@@ -4,7 +4,7 @@ module.exports = {
 	"max_screenshot_jobs": 3,
 	"max_print_jobs": 1,
 	"screenshot_viewport_size": {
-		"width": 1024,
+		"width": 768,
 		"height": 1200
 	},
 	"bucket_name": process.env.AWS_S3_BUCKET_NAME,

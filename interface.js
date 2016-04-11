@@ -20,6 +20,7 @@ Interface.prototype.getPageToPrint = function(){
 Interface.prototype.getPageToCapture = function(){
 	return models.Page.findOne({
 		captured: false,
+		capturing: false,
 		wordsC: {
 			$gt: 0
 		}
@@ -27,7 +28,6 @@ Interface.prototype.getPageToCapture = function(){
 		wordsC: -1
 	});
 };
-
 
 Interface.prototype.addPage = function(attr){
 	return models.Page.create({
@@ -43,7 +43,8 @@ Interface.prototype.getLinkToVisit = function(){
 	return models.Link.findOne({
 		visited: false
 	}).sort({
-		createdAt: 1
+		createdAt: 1,
+		wordsC: -1
 	});
 };
 
@@ -55,10 +56,8 @@ Interface.prototype.getAllLinkHrefs = function(){
 	});
 };
 
-Interface.prototype.addLink = function(href){
-	return models.Link.create({
-		href: href
-	});
+Interface.prototype.addLink = function(attr){
+	return models.Link.create(attr);
 };
 
 module.exports = Interface;

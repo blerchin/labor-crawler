@@ -1,4 +1,4 @@
-var phantom = require('phantom-render-stream');
+var phantom = require('phantom');
 var Promise = require('bluebird');
 var fs = require('fs');
 var URL = require('url');
@@ -12,12 +12,6 @@ var S3 = new AWS.S3();
 var Screenshotter = function(){
 	this.active_jobs = 0;
 	this.inter = new Interface();
-	this.render = phantom({
-		pool: 5,
-		format: config.page_save_format,
-		paperFormat: 'A4',
-		phantomFlags: ['--ignore-ssl-errors=true', '--web-security=false']
-	});
 };
 
 Screenshotter.prototype.run = function(){
@@ -26,8 +20,17 @@ Screenshotter.prototype.run = function(){
 
 Screenshotter.prototype.tick = function(){
 	var self = this;
-	while( this.active_jobs < config.max_screenshot_jobs ){
+	if( this.active_jobs < config.max_screenshot_jobs ){
 		this.inter.getPageToCapture()
+			.then(function(page){
+				if(page){
+					console.log('got page ', page.title);
+					page.capturing = true;
+					return page.save();
+				} else {
+					return Promise.resolve();
+				}
+			})
 			.then(function(page){
 				if(!page){
 					return Promise.resolve();
@@ -40,10 +43,9 @@ Screenshotter.prototype.tick = function(){
 						return page.save();
 					})
 					.catch(function(err){
-						page.captured = true;
-						return page.save();
 						console.log('error: ' + err);
-						return Promise.resolve();
+						//page.captured = true;
+						return page.save();
 					});
 			}).then(function(){
 				self.active_jobs--;
@@ -54,24 +56,59 @@ Screenshotter.prototype.tick = function(){
 	}
 };
 
+Screenshotter.prototype.renderFile = function(url){
+	var sitepage = null;
+	var phInstance = null;
+	var tmpFile = null;
+	return phantom.create()
+		.then(function(instance){
+			phInstance = instance;
+			return instance.createPage();
+		}).then(function(page){
+			sitepage = page;
+			return sitepage.property('viewportSize', config.screenshot_viewport_size)
+		}).then(function(){
+			return sitepage.open(url);
+		}).then(function(status){
+			tmpFile = config.temp_storage_dir + "/" + Date.now() + ".pdf";
+			return sitepage.render(tmpFile);
+		}).then(function(){
+			sitepage.close();
+			phInstance.exit();
+			return Promise.resolve(tmpFile);
+		});
+};
+
+Screenshotter.prototype.render = function(url){
+	console.log('rendering');
+	return this.renderFile(url).then(function(tmpFile){
+		console.log('rendered');
+		return Promise.resolve(fs.createReadStream(tmpFile));
+	})
+};
+
 Screenshotter.prototype.screenshot = function(url){
 	var self = this;
+	console.log('screenshotting ' + url)
 
-	var renderStream = this.render(url);
-	var params = {
-		Bucket: config.bucket_name, 
-		Key: this.outputPath(url),
-		Body: renderStream
-	};
-	return new Promise(function(resolve, reject){
-		S3.upload(params, function(err){
-			if(err){
-				reject(err);
-			} else {
-				resolve(params.Key);
-			}
-		})
-	});
+	return this.render(url)
+		.then(function(readStream){
+			console.log('got stream');
+			var params = {
+				Bucket: config.bucket_name, 
+				Key: self.outputPath(url),
+				Body: readStream
+			};
+			return new Promise(function(resolve, reject){
+				S3.upload(params, function(err){
+					if(err){
+						reject(err);
+					} else {
+						resolve(params.Key);
+					}
+				})
+			});
+		});
 };
 
 Screenshotter.prototype.outputPath = function(url){

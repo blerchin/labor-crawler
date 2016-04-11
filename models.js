@@ -5,7 +5,10 @@ mongoose.connect(config.mongo_url);
 
 var Page = mongoose.model('Page', new mongoose.Schema({
 	title: String,
-	url: String,
+	url: {
+		type: String,
+		unique: true
+	},
 	links: Array,
 	words: Array,
 	wordsC: Number,
@@ -14,6 +17,10 @@ var Page = mongoose.model('Page', new mongoose.Schema({
 		'default': false
 	},
 	capturedPDFKey: String,
+	capturing: {
+		type: Boolean,
+		'default': false
+	},
 	captured: {
 		type:	Boolean,
 		'default': false
@@ -23,7 +30,11 @@ var Page = mongoose.model('Page', new mongoose.Schema({
 }));
 
 var Link = mongoose.model('Link', new mongoose.Schema({
-	href: String,
+	href: {
+		type: String,
+		unique: true
+	},
+	wordsC: String,
 	visited: {
 		type: Boolean,
 		'default': false
