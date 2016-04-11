@@ -11,7 +11,10 @@ var Page = mongoose.model('Page', new mongoose.Schema({
 	},
 	links: Array,
 	words: Array,
-	wordsC: Number,
+	wordsC: {
+		type: Number,
+		index: true
+	},
 	printed: {
 		type:	Boolean,
 		'default': false
