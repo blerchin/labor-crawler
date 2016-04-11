@@ -23,6 +23,7 @@ module.exports = {
 		"union"
 	],
 	"blacklist":[
+		/.*google.com.*/,
 		/.*facebook.com.*/,
 		/^\/?#/,
 		/^\//
