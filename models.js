@@ -37,7 +37,10 @@ var Link = mongoose.model('Link', new mongoose.Schema({
 		type: String,
 		unique: true
 	},
-	wordsC: String,
+	wordsC: {
+		type: Number,
+		index: true
+	},
 	visited: {
 		type: Boolean,
 		'default': false
