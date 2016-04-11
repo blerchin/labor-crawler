@@ -1,3 +1,3 @@
-web: node app
+crawl: node app
 print: node print
 screenshot: node screenshot
