@@ -19,6 +19,10 @@ var Page = mongoose.model('Page', new mongoose.Schema({
 		type:	Boolean,
 		'default': false
 	},
+	printing: {
+		type: Boolean,
+		'default': false
+	},
 	capturedPDFKey: String,
 	capturing: {
 		type: Boolean,
