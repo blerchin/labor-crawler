@@ -22,10 +22,6 @@ Printer.prototype.tick = function(){
 	while( this.active_jobs < config.max_print_jobs ){
 		this.inter.getPageToPrint()
 			.then(function(page){
-				page.printing = true;
-				return page.save();
-			})
-			.then(function(page){
 				if(!page){
 					return Promise.resolve();
 				}

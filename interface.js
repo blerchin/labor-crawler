@@ -4,7 +4,7 @@ var Interface = function(){
 };
 
 Interface.prototype.getPageToPrint = function(){
-	return models.Page.findOne({
+	return models.Page.findOneAndUpdate({
 		printed: false,
 		printing: {
 			$ne: true
@@ -15,6 +15,8 @@ Interface.prototype.getPageToPrint = function(){
 		wordsC: {
 			$gt: 0
 		}
+	},{
+		printing: true
 	}).sort({
 		wordsC: -1
 	});
